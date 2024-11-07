@@ -1,5 +1,5 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { FirebaseAdmin } from '../config/firebase/firebase.setup';
+import { FirebaseAdmin } from '../../config/firebase/firebase.setup';
 import { UserDto } from './dto/user.dto';
 
 @Injectable()
