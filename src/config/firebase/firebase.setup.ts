@@ -1,28 +1,28 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as admin from 'firebase-admin';
-
+import { validateFirebaseConfig } from './firebase.config';
 let app: admin.app.App = null;
 
 @Injectable()
 export class FirebaseAdmin implements OnApplicationBootstrap {
-  constructor(private configService: ConfigService) {}
+  private initializeFirebase() {
+    const FirebaseConfig = validateFirebaseConfig();
+
+    const { FIREBASE_PROJECT_ID, FIREBASE_PRIVATE_KEY, FIREBASE_CLIENT_EMAIL } =
+      FirebaseConfig;
+
+    return admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: FIREBASE_PROJECT_ID,
+        privateKey: FIREBASE_PRIVATE_KEY,
+        clientEmail: FIREBASE_CLIENT_EMAIL,
+      }),
+    });
+  }
 
   async onApplicationBootstrap() {
     if (!app) {
-      const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
-      const privateKey = this.configService.get<string>('FIREBASE_PRIVATE_KEY');
-      const clientEmail = this.configService.get<string>(
-        'FIREBASE_CLIENT_EMAIL',
-      );
-
-      app = admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId,
-          privateKey,
-          clientEmail,
-        }),
-      });
+      app = this.initializeFirebase();
     }
   }
 
